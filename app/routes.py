@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from . import crud
+from sqlalchemy import func
 from typing import Dict,Any
 from .schemas import CreateTransaction, TransactionResponse, TransactionType
 from .database import SessionLocal
 from datetime import date
 from typing import Optional
+
 router = APIRouter()
 def get_db():
     db = SessionLocal()
@@ -79,4 +81,16 @@ def filter_transactions(
         end_date,
         transaction_type,
         category
+    )
+
+@router.get("/summary/monthly")
+def monthly_summary(
+    year: int,
+    month: int,
+    db: Session = Depends(get_db)
+):
+    return crud.get_monthly_summary(
+        db,
+        year,
+        month
     )

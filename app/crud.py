@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from . import models
 from collections import defaultdict
 
@@ -119,3 +120,61 @@ def filter_transactions(
         )
 
     return query.all()
+
+def get_monthly_summary(db: Session, year: int, month: int):
+
+    month_string = f"{year}-{month:02d}"
+
+    transactions = (
+        db.query(models.Transaction)
+        .filter(
+            func.strftime(
+                "%Y-%m",
+                models.Transaction.date
+            ) == month_string
+        )
+        .all()
+    )
+
+    if not transactions:
+        return {
+            "month": month_string,
+            "income": 0,
+            "expenses": 0,
+            "balance": 0,
+            "transaction_count": 0,
+            "top_category": None
+        }
+
+    income = sum(
+        t.amount for t in transactions
+        if t.transaction_type == "income"
+    )
+
+    expenses = sum(
+        t.amount for t in transactions
+        if t.transaction_type == "expense"
+    )
+
+    categories = defaultdict(float)
+
+    for transaction in transactions:
+        if transaction.transaction_type == "expense":
+            categories[transaction.category] += transaction.amount
+
+    top_category = None
+
+    if categories:
+        top_category = max(
+            categories,
+            key=categories.get
+        )
+
+    return {
+        "month": month_string,
+        "income": round(income, 2),
+        "expenses": round(expenses, 2),
+        "balance": round(income - expenses, 2),
+        "transaction_count": len(transactions),
+        "top_category": top_category
+    }
