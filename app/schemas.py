@@ -23,3 +23,12 @@ class TransactionResponse(BaseModel):
     transaction_type: TransactionType 
 
     model_config = ConfigDict(from_attributes = True)
+
+class SettingsUpdate(BaseModel):
+    opening_balance: float
+
+
+class SettingsResponse(BaseModel):
+    opening_balance: float
+
+    model_config = ConfigDict(from_attributes=True)

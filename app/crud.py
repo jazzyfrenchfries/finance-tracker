@@ -178,3 +178,79 @@ def get_monthly_summary(db: Session, year: int, month: int):
         "transaction_count": len(transactions),
         "top_category": top_category
     }
+
+def update_settings(db: Session, opening_balance: float):
+
+    settings = db.query(models.Settings).first()
+
+    if settings:
+        settings.opening_balance = opening_balance
+
+    else:
+        settings = models.Settings(
+            opening_balance=opening_balance
+        )
+
+        db.add(settings)
+
+    db.commit()
+    db.refresh(settings)
+
+    return settings
+
+
+
+def get_settings(db: Session):
+
+    settings = db.query(models.Settings).first()
+
+    if settings:
+        return settings
+
+    return models.Settings(
+        opening_balance=0
+    )
+
+def get_balance(db: Session):
+
+    settings = db.query(models.Settings).first()
+
+    opening_balance = 0
+
+    if settings:
+        opening_balance = settings.opening_balance
+
+
+    transactions = db.query(models.Transaction).all()
+
+
+    income = sum(
+        t.amount for t in transactions
+        if t.transaction_type == "income"
+    )
+
+
+    expenses = sum(
+        t.amount for t in transactions
+        if t.transaction_type == "expense"
+    )
+
+
+    return {
+        "balance": round(
+            opening_balance + income - expenses,
+            2
+        ),
+        "opening_balance": round(
+            opening_balance,
+            2
+        ),
+        "income": round(
+            income,
+            2
+        ),
+        "expenses": round(
+            expenses,
+            2
+        )
+    }

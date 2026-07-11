@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer,String,Float,Date
 from .database import Base
+
+
 class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer,primary_key=True,index=True)
@@ -9,3 +11,9 @@ class Transaction(Base):
     date = Column(Date, nullable=False)
     notes = Column(String, nullable=True)
     transaction_type = Column(String, nullable= False)
+
+class Settings(Base):
+    __tablename__ = "settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    opening_balance = Column(Float, nullable=False, default=0)

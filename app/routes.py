@@ -7,6 +7,7 @@ from .schemas import CreateTransaction, TransactionResponse, TransactionType
 from .database import SessionLocal
 from datetime import date
 from typing import Optional
+from .schemas import SettingsUpdate, SettingsResponse
 
 router = APIRouter()
 def get_db():
@@ -58,11 +59,11 @@ def update_transaction(
         )
 
     return updated_transaction
-@router.get("/summary")
-def summary(
+@router.get("/balance")
+def balance(
     db: Session = Depends(get_db)
 ):
-    return crud.get_summary(db)
+    return crud.get_balance(db)
 
 @router.get(
     "/transactions/filter",
@@ -93,4 +94,28 @@ def monthly_summary(
         db,
         year,
         month
+    )
+
+@router.get(
+    "/settings",
+    response_model=SettingsResponse
+)
+def get_settings(
+    db: Session = Depends(get_db)
+):
+    return crud.get_settings(db)
+
+
+
+@router.put(
+    "/settings",
+    response_model=SettingsResponse
+)
+def update_settings(
+    settings: SettingsUpdate,
+    db: Session = Depends(get_db)
+):
+    return crud.update_settings(
+        db,
+        settings.opening_balance
     )

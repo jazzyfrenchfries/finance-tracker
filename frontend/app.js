@@ -1,17 +1,20 @@
 const API = "";
 
-
 async function loadDashboard() {
 
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+
+    // Load monthly summary
     const summaryResponse = await fetch(
-        `${API}/summary/monthly?year=2026&month=7`
+        `${API}/summary/monthly?year=${year}&month=${month}`
     );
 
     const summary = await summaryResponse.json();
 
-
-    document.getElementById("balance").textContent =
-        "£" + summary.balance.toFixed(2);
 
     document.getElementById("income").textContent =
         "£" + summary.income.toFixed(2);
@@ -21,6 +24,32 @@ async function loadDashboard() {
 
 
 
+    // Load current balance
+    const balanceResponse = await fetch(
+        `${API}/balance`
+    );
+
+    const balance = await balanceResponse.json();
+
+
+    document.getElementById("balance").textContent =
+        "£" + balance.balance.toFixed(2);
+
+
+    const openingBalanceElement =
+        document.getElementById("openingBalance");
+
+    if (openingBalanceElement) {
+
+        openingBalanceElement.textContent =
+            "Starting balance: £" +
+            balance.opening_balance.toFixed(2);
+
+    }
+
+
+
+    // Load transactions
     const transactionsResponse = await fetch(
         `${API}/transactions`
     );
@@ -33,57 +62,76 @@ async function loadDashboard() {
         document.getElementById("transactions");
 
 
-    container.innerHTML = "";
+    if (container) {
+
+        container.innerHTML = "";
 
 
-    transactions
-        .slice(-5)
-        .reverse()
-        .forEach(transaction => {
+        transactions
+            .slice(-5)
+            .reverse()
+            .forEach(transaction => {
 
-            const div =
-                document.createElement("div");
-
-            div.className = "transaction";
+                const div =
+                    document.createElement("div");
 
 
-            const sign =
-                transaction.transaction_type === "income"
-                ? "+"
-                : "-";
+                div.className = "transaction";
 
 
-            div.innerHTML = `
-                <strong>
-                    ${transaction.merchant}
-                </strong>
-                <br>
-                ${transaction.category}
-                <br>
-                ${transaction.date}
-                <br>
-                ${sign}£${transaction.amount.toFixed(2)}
-            `;
+                const sign =
+                    transaction.transaction_type === "income"
+                    ? "+"
+                    : "-";
 
 
-            container.appendChild(div);
+                div.innerHTML = `
+                    <strong>
+                        ${transaction.merchant}
+                    </strong>
+                    <br>
+                    ${transaction.category}
+                    <br>
+                    ${transaction.date}
+                    <br>
+                    ${sign}£${transaction.amount.toFixed(2)}
+                `;
 
-        });
+
+                container.appendChild(div);
+
+            });
+    }
 }
 
 
-loadDashboard();
+
 function showAddTransaction() {
 
     const form =
         document.getElementById("addTransaction");
 
+
     form.style.display = "block";
+
+
+    const dateInput =
+        document.getElementById("date");
+
+
+    if (dateInput) {
+
+        dateInput.value =
+            new Date().toISOString().split("T")[0];
+
+    }
 }
 
 
 
+
 async function addTransaction() {
+
 
     const transaction = {
 
@@ -92,23 +140,28 @@ async function addTransaction() {
                 document.getElementById("amount").value
             ),
 
+
         transaction_type:
             document.getElementById("type").value,
+
 
         category:
             document.getElementById("category").value,
 
+
         merchant:
             document.getElementById("merchant").value,
 
+
         date:
-            document.getElementById("date").value || 
-            new Date().toISOString().split("T")[0],
+            document.getElementById("date").value,
+
 
         notes:
             document.getElementById("notes").value
 
     };
+
 
 
     const response = await fetch(
@@ -126,7 +179,8 @@ async function addTransaction() {
     );
 
 
-    if(response.ok) {
+
+    if (response.ok) {
 
         alert("Transaction saved!");
 
@@ -134,19 +188,17 @@ async function addTransaction() {
 
     } else {
 
-        const error = await response.json();
+        const error =
+            await response.json();
+
         console.log(error);
+
         alert(JSON.stringify(error));
+
     }
 
 }
-const balanceResponse = await fetch(
-    `${API}/summary`
-);
-
-const balance =
-    await balanceResponse.json();
 
 
-document.getElementById("balance summary").textContent =
-    "£" + balance.balance.toFixed(2);
+
+loadDashboard();
