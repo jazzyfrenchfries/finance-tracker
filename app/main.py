@@ -4,10 +4,13 @@ from .database import engine
 from . import models
 from . import routes
 from .schemas import CreateTransaction
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 models.Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,6 +19,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(routes.router)
-@app.get("/")
-def home():
-    return {"message": "Finance Tracker is running!"}
+@app.get("/app")
+def frontend():
+    return FileResponse("frontend/index.html")

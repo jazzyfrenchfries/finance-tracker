@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Finance Tracker</h1>
+
+    <div class="card">
+        <h2>Balance</h2>
+        <p id="balance">£0.00</p>
+    </div>
+
+    <div class="card">
+        <h2>This Month</h2>
+        <h2>This Month</h2>
+        <p>Spent: 
+        <span id="expenses">£0.00</span>
+        </p>
+        <p>Income:
+        <span id="income">£0.00</span>
+        </p>
+    </div>
+
+    <button onclick="showAddTransaction()">
+        + Add Transaction
+    </button>
+    <div id="addTransaction" style="display:none;">
+
+    <h2>Add Transaction</h2>
+
+    <input id="amount" 
+           type="number" 
+           placeholder="Amount">
+
+    <select id="type">
+        <option value="expense">Expense</option>
+        <option value="income">Income</option>
+    </select>
+
+    <input id="category"
+           placeholder="Category">
+
+    <input id="merchant"
+           placeholder="Merchant">
+
+    <input id="date"
+           type="date">
+
+    <input id="notes"
+           placeholder="Notes">
+
+    <button onclick="addTransaction()">
+        Save
+    </button>
+
+</div>
+
+<script src="/static/app.js"></script>
+
+</body>
+</html>
+    <h2>Recent Transactions</h2>
+
+    <div id="transactions"></div>
+
+</div>
