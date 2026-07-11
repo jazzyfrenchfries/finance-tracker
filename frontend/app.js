@@ -202,3 +202,246 @@ async function addTransaction() {
 
 
 loadDashboard();
+if ("serviceWorker" in navigator) {
+
+    navigator.serviceWorker.register(
+        "/static/service-worker.js"
+    );
+
+}
+function showHome() {
+
+    document.getElementById("historyPage")
+        .style.display = "none";
+
+
+    document.getElementById("dashboardPage")
+        .style.display = "block";
+
+}
+async function showHistory() {
+
+
+    document.getElementById("dashboardPage")
+        .style.display = "none";
+
+
+    document.getElementById("historyPage")
+        .style.display = "block";
+
+
+    const response =
+        await fetch(
+            `${API}/transactions`
+        );
+
+
+    const transactions =
+        await response.json();
+
+
+
+    const container =
+        document.getElementById(
+            "allTransactions"
+        );
+
+
+    container.innerHTML = "";
+
+
+
+    transactions
+        .reverse()
+        .forEach(transaction => {
+
+
+            const div =
+                document.createElement("div");
+
+
+            div.className =
+                "transaction";
+
+
+
+            const sign =
+                transaction.transaction_type === "income"
+                ? "+"
+                : "-";
+
+
+
+            div.innerHTML = `
+
+<div>
+
+    <strong>
+        ${transaction.merchant}
+    </strong>
+
+    <br>
+
+    <small>
+        ${transaction.category}
+        <br>
+        ${transaction.date}
+    </small>
+
+</div>
+
+
+<div>
+
+    ${sign}£${transaction.amount.toFixed(2)}
+
+    <br>
+    <button onclick="editTransaction(${transaction.id})">
+        ✏️
+    </button>
+    <button onclick="deleteTransaction(${transaction.id})">
+        🗑️
+    </button>
+
+</div>
+
+`;
+
+
+            container.appendChild(div);
+
+
+        });
+
+}
+async function deleteTransaction(id) {
+
+
+    const confirmed =
+        confirm(
+            "Delete this transaction?"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+
+    const response =
+        await fetch(
+            `${API}/transactions/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+
+    if(response.ok){
+
+        alert("Transaction deleted");
+
+        showHistory();
+
+        loadDashboard();
+
+    }
+
+}
+async function editTransaction(id) {
+
+
+    const response =
+        await fetch(
+            `${API}/transactions`
+        );
+
+
+    const transactions =
+        await response.json();
+
+
+    const transaction =
+        transactions.find(
+            t => t.id === id
+        );
+
+
+    if(!transaction){
+        return;
+    }
+
+
+    const amount =
+        prompt(
+            "Amount:",
+            transaction.amount
+        );
+
+
+    const merchant =
+        prompt(
+            "Merchant:",
+            transaction.merchant
+        );
+
+
+    const category =
+        prompt(
+            "Category:",
+            transaction.category
+        );
+
+
+    const updated = {
+
+        amount: Number(amount),
+
+        transaction_type:
+            transaction.transaction_type,
+
+        merchant: merchant,
+
+        category: category,
+
+        date:
+            transaction.date,
+
+        notes:
+            transaction.notes || ""
+
+    };
+
+
+    const updateResponse =
+        await fetch(
+            `${API}/transactions/${id}`,
+            {
+                method: "PUT",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:
+                    JSON.stringify(updated)
+            }
+        );
+
+
+    if(updateResponse.ok){
+
+        alert("Updated!");
+
+        showHistory();
+
+        loadDashboard();
+
+    }
+
+}

@@ -49,7 +49,7 @@ def update_transaction(db:Session, transaction_id: int, updated_data):
     transaction.category = updated_data.category
     transaction.merchant = updated_data.merchant
     transaction.date = updated_data.date
-    transaction.notes = updated_data.notes,
+    transaction.notes = updated_data.notes
     transaction.transaction_type = updated_data.transaction_type
 
     db.commit()
