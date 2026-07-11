@@ -8,3 +8,4 @@ class Transaction(Base):
     merchant = Column(String, nullable=False)
     date = Column(Date, nullable=False)
     notes = Column(String, nullable=True)
+    transaction_type = Column(String, nullable= False)

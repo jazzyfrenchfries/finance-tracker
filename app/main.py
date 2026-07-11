@@ -19,6 +19,3 @@ app.include_router(routes.router)
 @app.get("/")
 def home():
     return {"message": "Finance Tracker is running!"}
-@app.post("/transaction")
-def teat_transaction(transaction: CreateTransaction):
-    return crud.create_transaction(Ses)
